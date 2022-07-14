@@ -32,6 +32,42 @@ WHERE  name != 'Gabumon';
 SELECT * from animals
 WHERE weight_kg <= 17.3 AND weight_kg >= 10.4;
 
+
+-- unspecified to species column
+BEGIN TRANSACTION;
+UPDATE animals
+SET species='unspecified';
+
+-- Set species to digimon
+BEGIN TRANSACTION;
+UPDATE animals
+SET species='digimon'
+WHERE name LIKE '%mon';
+
+-- Set species to pokemon
+BEGIN TRANSACTION;
+UPDATE animals
+SET species='pokemon'
+WHERE species ISNULL;
+COMMIT TRANSACTION;
+
+-- Deleting all records from animals
+BEGIN TRANSACTION;
+DELETE FROM animals;
+
+ROLLBACK;
+
+-- Deleting and set SAVEPOINT
+BEGIN TRANSACTION;
+DELETE FROM animals
+WHERE date_of_birth > '2022-01-01';
+SAVEPOINT savepoint1;
+
+ROLLBACK TO savepoint1;
+UPDATE animals SET weight_kg= weight_kg * -1
+WHERE weight_kg < 0;
+COMMIT TRANSACTION;
+
 -- How many animals are there?
 SELECT COUNT(*) FROM animals;
 
@@ -53,4 +89,6 @@ FROM animals GROUP BY species;
 SELECT species, AVG(escape_attempts) 
 FROM animals WHERE date_of_birth 
 BETWEEN '1990-01-01' AND '2000-12-31' GROUP BY species;
+
+
 
