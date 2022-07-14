@@ -12,37 +12,27 @@ weight_kg DECIMAL);
 ALTER TABLE animals 
 ADD species varchar(30);
 
--- unspecified to species column
-BEGIN TRANSACTION;
-UPDATE animals
-SET species='unspecified';
+-- Create table owners
+CREATE TABLE owners(
+id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+full_name varchar(40),
+age INT);
 
--- Set species to digimon
-BEGIN TRANSACTION;
-UPDATE animals
-SET species='digimon'
-WHERE name LIKE '%mon';
+-- create table species
+CREATE TABLE species(
+id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+name varchar(40));
 
--- Set species to pokemon
-BEGIN TRANSACTION;
-UPDATE animals
-SET species='pokemon'
-WHERE species ISNULL;
-COMMIT TRANSACTION;
+-- remove column species
+ALTER TABLE animals
+DROP COLUMN species;
 
--- Deleting all records from animals
-BEGIN TRANSACTION;
-DELETE FROM animals;
+-- Add column species_id which is a foreign key referencing species table
+ALTER TABLE animals
+ADD COLUMN species_id INT,
+ADD FOREIGN KEY(species_id) REFERENCES species(id);
 
-ROLLBACK;
-
--- Deleting and set SAVEPOINT
-BEGIN TRANSACTION;
-DELETE FROM animals
-WHERE date_of_birth > '2022-01-01';
-SAVEPOINT savepoint1;
-
-ROLLBACK TO savepoint1;
-UPDATE animals SET weight_kg= weight_kg * -1
-WHERE weight_kg < 0;
-COMMIT TRANSACTION;
+-- Add column owner_id which is a foreign key referencing the owners table
+ALTER TABLE animals
+ADD COLUMN owner_id INT,
+ADD FOREIGN KEY(species_id) REFERENCES owners(id);
